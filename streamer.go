@@ -182,7 +182,8 @@ func (s *streamer) do() bool {
 		Url: &url.URL{
 			Scheme: "rtsp",
 			Host:   s.ur.Host,
-			Path:   "/",
+			Path:   s.ur.Path,
+			RawQuery: s.ur.RawQuery,
 		},
 	})
 	if err != nil {

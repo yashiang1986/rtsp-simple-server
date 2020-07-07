@@ -16,6 +16,7 @@ import (
 const (
 	_UDP_CHECK_STREAM_INTERVAL = 5 * time.Second
 	_UDP_STREAM_DEAD_AFTER     = 10 * time.Second
+        _WRITE_BUF_DEFAULT_SIZE    = 65 * 1024
 )
 
 func interleavedChannelToTrack(channel uint8) (int, trackFlowType) {
@@ -101,8 +102,8 @@ func newServerClient(p *program, nconn net.Conn) *serverClient {
 		state:     _CLIENT_STATE_STARTING,
 		readBuf1:  make([]byte, 0, 512*1024),
 		readBuf2:  make([]byte, 0, 512*1024),
-		writeBuf1: make([]byte, 2048),
-		writeBuf2: make([]byte, 2048),
+		writeBuf1: make([]byte, _WRITE_BUF_DEFAULT_SIZE),
+		writeBuf2: make([]byte, _WRITE_BUF_DEFAULT_SIZE),
 		writec:    make(chan *gortsplib.InterleavedFrame),
 		done:      make(chan struct{}),
 	}
@@ -778,7 +779,7 @@ func (c *serverClient) handleRequest(req *gortsplib.Request) bool {
 			}()
 
 			// receive RTP feedback, do not parse it, wait until connection closes
-			buf := make([]byte, 2048)
+			buf := make([]byte, _WRITE_BUF_DEFAULT_SIZE)
 			for {
 				_, err := c.conn.NetConn().Read(buf)
 				if err != nil {
